@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import Head from 'next/head'
 import Image from 'next/image'
@@ -27,6 +27,8 @@ import {
 import { FormsManager, Form, useSelector } from '@userzoomlibraries/toolkit-forms-manager';
 
 import styles from '@/styles/Home.module.css'
+
+import withFormFieldWrapper from '../hocs/with-form-field-wrapper';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -153,43 +155,6 @@ const Test = () => {
     </div>
   )
 }
-
-const withFormFieldWrapper = (Component) => ({ valueKey, onChangeKey = '', onChangeTransformer }) => {
-  const Wrapper = (props) => {
-    const [value, setValue] = useState(() => {
-      if (Array.isArray(valueKey)) {
-        return valueKey.map((each) => props[each]);
-      }
-
-      return props[valueKey];
-    });
-
-    const valueKeys = [valueKey].flat();
-
-    const valueKeysProps = valueKeys.reduce((acc, current) => ({
-      ...acc,
-      [current]: props[current],
-    }), {});
-
-    const finalProps = {
-      ...props,
-      ...valueKeysProps,
-      [onChangeKey]: (event) => {
-        const newValue = onChangeTransformer(event, value);
-
-        props[onChangeKey](event, newValue);
-
-        setValue(newValue);
-      },
-    };
-
-    return (
-      <Component {...finalProps} />
-    );
-  };
-
-  return Wrapper;
-};
 
 const TkCheckboxWrapped = withFormFieldWrapper(TkCheckbox)({ valueKey: 'checked', onChangeKey: 'onCheck', onChangeTransformer: (event, value) => !value });
 const TkInputWrapped = withFormFieldWrapper(TkInput)({ valueKey: 'value', onChangeKey: 'onValueChanged', onChangeTransformer: (event) => event.detail });
